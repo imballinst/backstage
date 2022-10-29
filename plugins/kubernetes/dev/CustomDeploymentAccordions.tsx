@@ -29,24 +29,17 @@ import {
   V1Pod,
   V1HorizontalPodAutoscaler,
 } from '@kubernetes/client-node';
-import { PodsTable } from '../Pods';
-import { DeploymentDrawer } from './DeploymentDrawer';
-import { HorizontalPodAutoscalerDrawer } from '../HorizontalPodAutoscalers';
+import { StatusOK, StatusError } from '@backstage/core-components';
 import {
-  getOwnedPodsThroughReplicaSets,
-  getMatchingHpa,
-} from '../../utils/owner';
-import {
-  CustomKubernetesComponentsContext,
-  GroupedResponsesContext,
+  HorizontalPodAutoscalerDrawer,
   PodNamesWithErrorsContext,
-} from '../../hooks';
-import { StatusError, StatusOK } from '@backstage/core-components';
-import { READY_COLUMNS, RESOURCE_COLUMNS } from '../Pods/PodsTable';
-
-type DeploymentsAccordionsProps = {
-  children?: React.ReactNode;
-};
+  PodsTable,
+} from '../src';
+import { DeploymentDrawer } from '../src/components/DeploymentsAccordions/DeploymentDrawer';
+import {
+  READY_COLUMNS,
+  RESOURCE_COLUMNS,
+} from '../src/components/Pods/PodsTable';
 
 export type DeploymentAccordionProps = {
   deployment: V1Deployment;
@@ -105,12 +98,6 @@ const DeploymentSummary = ({
                   {hpa.status?.currentCPUUtilizationPercentage ?? '?'}%
                 </Typography>
               </Grid>
-              <Grid item>
-                <Typography variant="subtitle2">
-                  target CPU usage:{' '}
-                  {hpa.spec?.targetCPUUtilizationPercentage ?? '?'}%
-                </Typography>
-              </Grid>
             </Grid>
           </HorizontalPodAutoscalerDrawer>
         </Grid>
@@ -141,7 +128,7 @@ const DeploymentSummary = ({
   );
 };
 
-const DeploymentAccordion = ({
+export const CustomDeploymentAccordion = ({
   deployment,
   ownedPods,
   matchingHpa,
@@ -169,44 +156,5 @@ const DeploymentAccordion = ({
         />
       </AccordionDetails>
     </Accordion>
-  );
-};
-
-export const DeploymentsAccordions = ({}: DeploymentsAccordionsProps) => {
-  const groupedResponses = useContext(GroupedResponsesContext);
-  const DeploymentAccordionComponent =
-    useContext(CustomKubernetesComponentsContext).Deployment ||
-    DeploymentAccordion;
-
-  return (
-    <Grid
-      container
-      direction="column"
-      justifyContent="flex-start"
-      alignItems="flex-start"
-    >
-      {groupedResponses.deployments.map((deployment, i) => (
-        <Grid container item key={i} xs>
-          <Grid item xs>
-            <DeploymentAccordionComponent
-              matchingHpa={getMatchingHpa(
-                {
-                  name: deployment.metadata?.name,
-                  namespace: deployment.metadata?.namespace,
-                  kind: 'deployment',
-                },
-                groupedResponses.horizontalPodAutoscalers,
-              )}
-              ownedPods={getOwnedPodsThroughReplicaSets(
-                deployment,
-                groupedResponses.replicaSets,
-                groupedResponses.pods,
-              )}
-              deployment={deployment}
-            />
-          </Grid>
-        </Grid>
-      ))}
-    </Grid>
   );
 };

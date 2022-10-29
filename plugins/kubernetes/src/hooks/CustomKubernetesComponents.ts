@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import React from 'react';
+import type { DeploymentAccordionProps } from '../components/DeploymentsAccordions/DeploymentsAccordions';
 
-export * from './useKubernetesObjects';
-export * from './useCustomResources';
-export * from './PodNamesWithErrors';
-export * from './PodNamesWithMetrics';
-export * from './GroupedResponses';
-export * from './Cluster';
-export * from './CustomKubernetesComponents';
+interface CustomKubernetesComponentsContextType {
+  Deployment?: React.ComponentType<DeploymentAccordionProps>
+}
+
+export const CustomKubernetesComponentsContext = React.createContext<CustomKubernetesComponentsContextType>({});

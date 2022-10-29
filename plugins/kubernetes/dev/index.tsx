@@ -22,6 +22,7 @@ import {
   kubernetesPlugin,
   kubernetesApiRef,
   KubernetesApi,
+  CustomKubernetesComponentsContext,
 } from '../src';
 import {
   CustomObjectsByEntityRequest,
@@ -34,6 +35,7 @@ import fixture2 from '../src/__fixtures__/2-deployments.json';
 import fixture3 from '../src/__fixtures__/1-cronjobs.json';
 import fixture4 from '../src/__fixtures__/2-cronjobs.json';
 import { TestApiProvider } from '@backstage/test-utils';
+import { CustomDeploymentAccordion } from './CustomDeploymentAccordions';
 
 const mockEntity: Entity = {
   apiVersion: 'backstage.io/v1alpha1',
@@ -130,7 +132,13 @@ createDevApp()
         apis={[[kubernetesApiRef, new MockKubernetesClient(fixture2)]]}
       >
         <EntityProvider entity={mockEntity}>
-          <EntityKubernetesContent />
+          <CustomKubernetesComponentsContext.Provider
+            value={{
+              Deployment: CustomDeploymentAccordion,
+            }}
+          >
+            <EntityKubernetesContent />
+          </CustomKubernetesComponentsContext.Provider>
         </EntityProvider>
       </TestApiProvider>
     ),
